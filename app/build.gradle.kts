@@ -21,6 +21,7 @@ android {
         vectorDrawables {
             useSupportLibrary = true
         }
+        buildConfigField("String", "MOVIE_API_KEY", "\"abfabb9de9dc58bb436d38f97ce882bc\"")
     }
 
     buildTypes {
