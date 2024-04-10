@@ -1,4 +1,4 @@
-package com.example.movieapp.view
+package com.example.movieapp.screens
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -32,9 +32,9 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
-import com.example.movieapp.model.MovieResult
+import com.example.movieapp.model.MovieData
 import com.example.movieapp.model.api.NetworkResult
-import com.example.movieapp.ui.common.MovieListGrid
+import com.example.movieapp.ui.common.MoviesListGrid
 import com.example.movieapp.util.SearchAppBarState
 import com.example.movieapp.viewmodel.SearchScreenViewModel
 
@@ -46,6 +46,7 @@ fun SearchScreen(
     val searchedMovies by viewModel.result.collectAsState()
     val searchAppBarState: SearchAppBarState = viewModel.searchAppBarState
     val searchTextState: String = viewModel.searchTextState
+    val favoriteMoviesIds by viewModel.favoriteMoviesIds.collectAsState()
 
     Scaffold(
         topBar = {
@@ -60,8 +61,16 @@ fun SearchScreen(
             modifier = Modifier.padding(paddingValues),
             searchAppBarState = searchAppBarState,
             result = searchedMovies,
+            favoriteMoviesIds = favoriteMoviesIds,
             onItemClick = {
                 // to do
+            },
+            onFavoriteClick = {
+                if (!favoriteMoviesIds.contains(it.id)) {
+                    viewModel.addToFavorites(it)
+                } else {
+                    viewModel.removeFromFavorites(it.id)
+                }
             }
         )
     }
@@ -71,8 +80,10 @@ fun SearchScreen(
 private fun SearchMovieListContent(
     modifier: Modifier,
     searchAppBarState: SearchAppBarState,
-    result: NetworkResult<List<MovieResult>>,
-    onItemClick: (MovieResult) -> Unit
+    favoriteMoviesIds: List<Int>,
+    result: NetworkResult<List<MovieData>>,
+    onItemClick: (MovieData) -> Unit,
+    onFavoriteClick: (MovieData) -> Unit
 ) {
     Column(
         modifier = Modifier.fillMaxSize(),
@@ -95,10 +106,12 @@ private fun SearchMovieListContent(
 
                 is NetworkResult.Success -> {
                     if (!result.data.isNullOrEmpty()) {
-                        MovieListGrid(
+                        MoviesListGrid(
                             modifier = modifier,
-                            movieList = result.data,
-                            onItemClick = onItemClick
+                            favoriteMoviesIds = favoriteMoviesIds,
+                            moviesList = result.data,
+                            onItemClick = onItemClick,
+                            onFavoriteClick = onFavoriteClick
                         )
                     } else {
                         Text(text = "No movie found")

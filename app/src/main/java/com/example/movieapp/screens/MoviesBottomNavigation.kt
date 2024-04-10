@@ -1,4 +1,4 @@
-package com.example.movieapp.view
+package com.example.movieapp.screens
 
 import androidx.compose.material3.Icon
 import androidx.compose.material3.NavigationBar

@@ -1,6 +1,7 @@
 package com.example.movieapp.repository
 
-import com.example.movieapp.model.MovieResult
+import android.util.Log
+import com.example.movieapp.model.MovieData
 import com.example.movieapp.model.RecommendationType
 import com.example.movieapp.model.api.MoviesApi
 import com.example.movieapp.model.api.NetworkResult
@@ -17,20 +18,20 @@ import kotlinx.coroutines.withContext
 class MoviesApiRepo(
     private val api: MoviesApi
 ) {
-    private val _nowPlayingMovies = MutableStateFlow<NetworkResult<List<MovieResult>>>(NetworkResult.Initial())
-    val nowPlayingMovies: StateFlow<NetworkResult<List<MovieResult>>> = _nowPlayingMovies
+    private val _nowPlayingMovies = MutableStateFlow<NetworkResult<List<MovieData>>>(NetworkResult.Initial())
+    val nowPlayingMovies: StateFlow<NetworkResult<List<MovieData>>> = _nowPlayingMovies
 
-    private val _popularMovies = MutableStateFlow<NetworkResult<List<MovieResult>>>(NetworkResult.Initial())
-    val popularMovies: StateFlow<NetworkResult<List<MovieResult>>> = _popularMovies
+    private val _popularMovies = MutableStateFlow<NetworkResult<List<MovieData>>>(NetworkResult.Initial())
+    val popularMovies: StateFlow<NetworkResult<List<MovieData>>> = _popularMovies
 
-    private val _topRatedMovies = MutableStateFlow<NetworkResult<List<MovieResult>>>(NetworkResult.Initial())
-    val topRatedMovies: StateFlow<NetworkResult<List<MovieResult>>> = _topRatedMovies
+    private val _topRatedMovies = MutableStateFlow<NetworkResult<List<MovieData>>>(NetworkResult.Initial())
+    val topRatedMovies: StateFlow<NetworkResult<List<MovieData>>> = _topRatedMovies
 
-    private val _upcomingMovies = MutableStateFlow<NetworkResult<List<MovieResult>>>(NetworkResult.Initial())
-    val upcomingMovies: StateFlow<NetworkResult<List<MovieResult>>> = _upcomingMovies
+    private val _upcomingMovies = MutableStateFlow<NetworkResult<List<MovieData>>>(NetworkResult.Initial())
+    val upcomingMovies: StateFlow<NetworkResult<List<MovieData>>> = _upcomingMovies
 
-    private val _searchedMovies = MutableStateFlow<NetworkResult<List<MovieResult>>>(NetworkResult.Initial())
-    val searchedMovies: StateFlow<NetworkResult<List<MovieResult>>> = _searchedMovies
+    private val _searchedMovies = MutableStateFlow<NetworkResult<List<MovieData>>>(NetworkResult.Initial())
+    val searchedMovies: StateFlow<NetworkResult<List<MovieData>>> = _searchedMovies
 
     private val exceptionHandler = CoroutineExceptionHandler { _, throwable ->
         onError("Exception : ${throwable.localizedMessage}")
@@ -43,7 +44,7 @@ class MoviesApiRepo(
         getAllMovies()
     }
 
-    fun getAllMovies() {
+    private fun getAllMovies() {
         _nowPlayingMovies.value = NetworkResult.Loading()
         _popularMovies.value = NetworkResult.Loading()
         _topRatedMovies.value = NetworkResult.Loading()
@@ -51,7 +52,7 @@ class MoviesApiRepo(
 
         job = CoroutineScope(Dispatchers.IO).launch {
             val nowPlayingDeferred = async(Dispatchers.IO + exceptionHandler) {
-                val response = api.getMovies(RecommendationType.NOW_PLAYING.type)
+                val response = api.getMovies(recommendationType = RecommendationType.NOW_PLAYING.type)
                 withContext(Dispatchers.Main) {
                     if (response.isSuccessful) {
                         response.body()?.let {
@@ -122,7 +123,7 @@ class MoviesApiRepo(
     }
 
     private fun onError(message: String) {
-        // to do
+        Log.e("MoviesApiRepo", message)
     }
 
     fun cancelJob() {

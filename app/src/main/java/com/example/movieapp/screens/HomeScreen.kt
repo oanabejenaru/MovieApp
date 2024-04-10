@@ -1,4 +1,4 @@
-package com.example.movieapp.view
+package com.example.movieapp.screens
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -34,11 +34,11 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.example.movieapp.R
-import com.example.movieapp.model.MovieResult
+import com.example.movieapp.model.MovieData
 import com.example.movieapp.model.RecommendationType
 import com.example.movieapp.model.SortMode
 import com.example.movieapp.model.api.NetworkResult
-import com.example.movieapp.ui.common.MovieListGrid
+import com.example.movieapp.ui.common.MoviesListGrid
 import com.example.movieapp.viewmodel.HomeScreenViewModel
 import com.google.accompanist.pager.ExperimentalPagerApi
 import com.google.accompanist.pager.HorizontalPager
@@ -55,6 +55,7 @@ fun HomeScreen(
     val popularMovies by viewModel.resultPopularMovies.collectAsState()
     val topRatedMovies by viewModel.resultTopRatedMovies.collectAsState()
     val upcomingMovies by viewModel.resultUpcomingMovies.collectAsState()
+    val favoriteMoviesIds by viewModel.favoriteMoviesIds.collectAsState()
 
     Scaffold(
         topBar = {
@@ -67,6 +68,17 @@ fun HomeScreen(
     ) { padding ->
         HomeContent(
             modifier = Modifier.padding(padding),
+            onItemClick = {
+
+            },
+            onFavoriteClick = {
+                if (!favoriteMoviesIds.contains(it.id)) {
+                    viewModel.addToFavorites(it)
+                } else {
+                    viewModel.removeFromFavorites(it.id)
+                }
+            },
+            favoriteMoviesIds = favoriteMoviesIds,
             nowPlayingMovies = nowPlayingMovies,
             popularMovies = popularMovies,
             topRatedMovies = topRatedMovies,
@@ -128,10 +140,13 @@ fun SortAction(
 @Composable
 fun HomeContent(
     modifier: Modifier,
-    nowPlayingMovies: NetworkResult<List<MovieResult>>,
-    popularMovies: NetworkResult<List<MovieResult>>,
-    topRatedMovies: NetworkResult<List<MovieResult>>,
-    upcomingMovies: NetworkResult<List<MovieResult>>
+    onItemClick: (MovieData) -> Unit,
+    onFavoriteClick: (MovieData) -> Unit,
+    favoriteMoviesIds: List<Int>,
+    nowPlayingMovies: NetworkResult<List<MovieData>>,
+    popularMovies: NetworkResult<List<MovieData>>,
+    topRatedMovies: NetworkResult<List<MovieData>>,
+    upcomingMovies: NetworkResult<List<MovieData>>
 ) {
     val pagerState = rememberPagerState(initialPage = 0)
 
@@ -145,9 +160,9 @@ fun HomeContent(
                 .weight(1f)
                 .padding(1.dp)
                 .fillMaxSize(),
-            onItemClick = {
-                // to do
-            },
+            onItemClick = onItemClick,
+            onFavoriteClick = onFavoriteClick,
+            favoriteMoviesIds = favoriteMoviesIds,
             nowPlayingMovies = nowPlayingMovies,
             popularMovies = popularMovies,
             topRatedMovies = topRatedMovies,
@@ -199,11 +214,13 @@ fun TabLayout(
 fun TabContent(
     pagerState: PagerState,
     modifier: Modifier,
-    onItemClick: (MovieResult) -> Unit,
-    nowPlayingMovies: NetworkResult<List<MovieResult>>,
-    popularMovies: NetworkResult<List<MovieResult>>,
-    topRatedMovies: NetworkResult<List<MovieResult>>,
-    upcomingMovies: NetworkResult<List<MovieResult>>
+    onItemClick: (MovieData) -> Unit,
+    onFavoriteClick: (MovieData) -> Unit,
+    favoriteMoviesIds: List<Int>,
+    nowPlayingMovies: NetworkResult<List<MovieData>>,
+    popularMovies: NetworkResult<List<MovieData>>,
+    topRatedMovies: NetworkResult<List<MovieData>>,
+    upcomingMovies: NetworkResult<List<MovieData>>
 ) {
     HorizontalPager(
         state = pagerState,
@@ -214,6 +231,8 @@ fun TabContent(
                 HomeListContent(
                     modifier = modifier,
                     onItemClick = onItemClick,
+                    onFavoriteClick = onFavoriteClick,
+                    favoriteMoviesIds = favoriteMoviesIds,
                     result = nowPlayingMovies
                 )
             }
@@ -222,6 +241,8 @@ fun TabContent(
                 HomeListContent(
                     modifier = modifier,
                     onItemClick = onItemClick,
+                    onFavoriteClick = onFavoriteClick,
+                    favoriteMoviesIds = favoriteMoviesIds,
                     result = popularMovies
                 )
             }
@@ -230,6 +251,8 @@ fun TabContent(
                 HomeListContent(
                     modifier = modifier,
                     onItemClick = onItemClick,
+                    onFavoriteClick = onFavoriteClick,
+                    favoriteMoviesIds = favoriteMoviesIds,
                     result = topRatedMovies
                 )
             }
@@ -237,6 +260,8 @@ fun TabContent(
             3 -> {
                 HomeListContent(
                     modifier = modifier,
+                    onFavoriteClick = onFavoriteClick,
+                    favoriteMoviesIds= favoriteMoviesIds,
                     onItemClick = onItemClick,
                     result = upcomingMovies
                 )
@@ -248,8 +273,10 @@ fun TabContent(
 @Composable
 fun HomeListContent(
     modifier: Modifier,
-    result: NetworkResult<List<MovieResult>>,
-    onItemClick: (MovieResult) -> Unit
+    favoriteMoviesIds: List<Int>,
+    result: NetworkResult<List<MovieData>>,
+    onFavoriteClick: (MovieData) -> Unit,
+    onItemClick: (MovieData) -> Unit
 ) {
     Column(
         modifier = Modifier.fillMaxSize(),
@@ -262,9 +289,11 @@ fun HomeListContent(
             }
             is NetworkResult.Success -> {
                 if (!result.data.isNullOrEmpty()) {
-                    MovieListGrid(
+                    MoviesListGrid(
                         modifier = modifier,
-                        movieList = result.data,
+                        favoriteMoviesIds = favoriteMoviesIds,
+                        moviesList = result.data,
+                        onFavoriteClick = onFavoriteClick,
                         onItemClick = onItemClick
                     )
                 } else {

@@ -9,12 +9,17 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Favorite
+import androidx.compose.material.icons.outlined.FavoriteBorder
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -22,24 +27,29 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import com.example.movieapp.R
-import com.example.movieapp.model.MovieResult
-import com.example.movieapp.model.api.ApiService
+import com.example.movieapp.model.MovieData
 import com.example.movieapp.ui.theme.RatingYellow
+import com.example.movieapp.util.Constants
 import java.text.DecimalFormat
 
 @Composable
-fun MovieListGrid(
-    modifier : Modifier,
-    movieList: List<MovieResult>,
-    onItemClick : (MovieResult) -> Unit
+fun MoviesListGrid(
+    modifier: Modifier,
+    favoriteMoviesIds: List<Int>,
+    moviesList: List<MovieData>,
+    onFavoriteClick: (MovieData) -> Unit,
+    onItemClick: (MovieData) -> Unit
 ) {
     LazyVerticalGrid(
         modifier = modifier,
         columns = GridCells.Fixed(count = 2)
     ) {
-        items(movieList) { movie ->
+        items(moviesList) { movie ->
+            val isFavorite = favoriteMoviesIds.contains(movie.id)
             MovieItem(
                 item = movie,
+                isFavorite = isFavorite,
+                onFavoriteClick = onFavoriteClick,
                 onItemClick = onItemClick
             )
         }
@@ -48,12 +58,14 @@ fun MovieListGrid(
 
 @Composable
 fun MovieItem(
-    item: MovieResult,
-    onItemClick: (MovieResult) -> Unit
+    item: MovieData,
+    isFavorite: Boolean,
+    onFavoriteClick: (MovieData) -> Unit,
+    onItemClick: (MovieData) -> Unit
 ) {
     val decimalFormat = DecimalFormat("#.#")
     val averageRating = decimalFormat.format(item.averageRating)
-    val yearOfRelease = item.yearOfRelease?.slice(IntRange(0,3)) ?: ""
+    val yearOfRelease = item.yearOfRelease?.slice(IntRange(0, 3)) ?: ""
 
     ElevatedCard(
         elevation = CardDefaults.cardElevation(defaultElevation = 5.dp),
@@ -63,7 +75,7 @@ fun MovieItem(
     ) {
         Column {
             CommonImage(
-                url = ApiService.POSTER_BASE_URL + item.posterPath,
+                url = Constants.BASE_IMAGE_URL + item.posterPath,
                 modifier = Modifier
                     .height(250.dp)
                     .fillMaxSize()
@@ -84,13 +96,28 @@ fun MovieItem(
                     )
                     Text(text = averageRating)
                 }
-                Icon(
-                    tint = Color.Gray,
-                    painter = painterResource(id = R.drawable.ic_favorites_outlined),
-                    contentDescription = null
-                )
+                IconButton(
+                    modifier = Modifier.size(24.dp),
+                    onClick = {
+                        onFavoriteClick.invoke(item)
+                    }
+                ) {
+                    if (isFavorite) {
+                        Icon(
+                            Icons.Filled.Favorite,
+                            tint = Color.Red,
+                            contentDescription = null
+                        )
+                    } else {
+                        Icon(
+                            Icons.Outlined.FavoriteBorder,
+                            tint = Color.Gray,
+                            contentDescription = null
+                        )
+                    }
+                }
+
             }
         }
-
     }
 }
