@@ -14,11 +14,13 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.movieapp.ui.theme.MovieAppTheme
 import com.example.movieapp.view.FavoritesScreen
 import com.example.movieapp.view.HomeScreen
 import com.example.movieapp.view.MoviesBottomNav
 import com.example.movieapp.view.SearchScreen
+import com.example.movieapp.viewmodel.HomeScreenViewModel
 import dagger.hilt.android.AndroidEntryPoint
 
 sealed class Destination(val route: String) {
@@ -26,6 +28,7 @@ sealed class Destination(val route: String) {
     data object Home : Destination("Home")
     data object Search : Destination("Search")
 }
+
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -51,6 +54,7 @@ class MainActivity : ComponentActivity() {
 fun MovieAppScaffold(
     navController: NavHostController
 ) {
+    val homeScreenViewModel = hiltViewModel<HomeScreenViewModel>()
     Scaffold(
         bottomBar = {
             MoviesBottomNav(navController = navController)
@@ -65,7 +69,10 @@ fun MovieAppScaffold(
                 FavoritesScreen(navController = navController, paddingValues = paddingValues)
             }
             composable(Destination.Home.route) {
-                HomeScreen(navController = navController, paddingValues = paddingValues)
+                HomeScreen(
+                    navController = navController,
+                    viewModel = homeScreenViewModel
+                )
             }
             composable(Destination.Search.route) {
                 SearchScreen(navController = navController, paddingValues = paddingValues)

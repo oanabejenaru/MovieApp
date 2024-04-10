@@ -3,7 +3,7 @@ package com.example.movieapp.model
 import com.google.gson.annotations.SerializedName
 
 data class MoviesApiResponse(
-    val results: List<MovieResult>?
+    val results: List<MovieResult>
 )
 
 data class MovieResult(
