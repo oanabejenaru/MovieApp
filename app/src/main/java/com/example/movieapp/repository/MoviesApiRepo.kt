@@ -29,12 +29,15 @@ class MoviesApiRepo(
     private val _upcomingMovies = MutableStateFlow<NetworkResult<List<MovieResult>>>(NetworkResult.Initial())
     val upcomingMovies: StateFlow<NetworkResult<List<MovieResult>>> = _upcomingMovies
 
+    private val _searchedMovies = MutableStateFlow<NetworkResult<List<MovieResult>>>(NetworkResult.Initial())
+    val searchedMovies: StateFlow<NetworkResult<List<MovieResult>>> = _searchedMovies
 
     private val exceptionHandler = CoroutineExceptionHandler { _, throwable ->
         onError("Exception : ${throwable.localizedMessage}")
     }
 
     private var job: Job? = null
+    private var searchMoviesJob: Job? = null
 
     init {
         getAllMovies()
@@ -100,14 +103,30 @@ class MoviesApiRepo(
             }
             upcomingDeferred.await()
         }
+    }
 
+    fun searchMovies(query : String) {
+        _searchedMovies.value = NetworkResult.Loading()
+        searchMoviesJob = CoroutineScope(Dispatchers.IO + exceptionHandler).launch {
+            val response = api.searchMovies(query)
+            withContext(Dispatchers.Main) {
+                if (response.isSuccessful) {
+                    response.body()?.let {
+                        _searchedMovies.value = NetworkResult.Success(it.results)
+                    }
+                } else {
+                    _searchedMovies.value = NetworkResult.Error(response.message())
+                }
+            }
+        }
     }
 
     private fun onError(message: String) {
-
+        // to do
     }
 
     fun cancelJob() {
         job?.cancel()
+        searchMoviesJob?.cancel()
     }
 }

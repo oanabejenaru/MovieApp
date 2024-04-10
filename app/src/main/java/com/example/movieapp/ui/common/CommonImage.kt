@@ -1,6 +1,7 @@
 package com.example.movieapp.ui.common
 
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -11,7 +12,7 @@ import coil.compose.rememberAsyncImagePainter
 @Composable
 fun CommonImage(
     url: String?,
-    modifier: Modifier = Modifier.wrapContentSize(),
+    modifier: Modifier = Modifier.fillMaxSize(),
     contentScale: ContentScale = ContentScale.Crop
 ) {
     val painter = rememberAsyncImagePainter(model = url)

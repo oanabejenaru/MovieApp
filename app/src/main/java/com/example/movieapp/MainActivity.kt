@@ -21,6 +21,7 @@ import com.example.movieapp.view.HomeScreen
 import com.example.movieapp.view.MoviesBottomNav
 import com.example.movieapp.view.SearchScreen
 import com.example.movieapp.viewmodel.HomeScreenViewModel
+import com.example.movieapp.viewmodel.SearchScreenViewModel
 import dagger.hilt.android.AndroidEntryPoint
 
 sealed class Destination(val route: String) {
@@ -55,6 +56,7 @@ fun MovieAppScaffold(
     navController: NavHostController
 ) {
     val homeScreenViewModel = hiltViewModel<HomeScreenViewModel>()
+    val searchScreenViewModel = hiltViewModel<SearchScreenViewModel>()
     Scaffold(
         bottomBar = {
             MoviesBottomNav(navController = navController)
@@ -75,7 +77,10 @@ fun MovieAppScaffold(
                 )
             }
             composable(Destination.Search.route) {
-                SearchScreen(navController = navController, paddingValues = paddingValues)
+                SearchScreen(
+                    navController = navController,
+                    viewModel = searchScreenViewModel
+                )
             }
         }
     }

@@ -11,7 +11,7 @@ interface MoviesApi {
     suspend fun getMovies(@Path("recommendation_type") recommendationType : String) : Response<MoviesApiResponse>
 
     @GET("search/movie")
-    suspend fun searchMovies(@Query("query") query: String)
+    suspend fun searchMovies(@Query("query") query: String) : Response<MoviesApiResponse>
 
     @GET("movie/{movie_id}")
     suspend fun getMovieDetails(@Path("recommendation_type") recommendationType : String)
