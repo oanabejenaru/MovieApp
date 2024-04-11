@@ -28,6 +28,7 @@ class SharedViewModel @Inject constructor(
     val resultPopularMovies = apiRepo.popularMovies
     val resultTopRatedMovies = apiRepo.topRatedMovies
     val resultUpcomingMovies = apiRepo.upcomingMovies
+    val resultMovieDetails = apiRepo.movieDetails
 
     var searchAppBarState by mutableStateOf(SearchAppBarState.CLOSED)
         private set
@@ -41,6 +42,12 @@ class SharedViewModel @Inject constructor(
     init {
         getFavoriteMoviesIds()
         getFavoriteMoviesList()
+    }
+
+    fun getMovieDetails(movieId: Int?) {
+        movieId?.let { id ->
+            apiRepo.getMovieDetails(id)
+        }
     }
 
     private fun getFavoriteMoviesIds() {

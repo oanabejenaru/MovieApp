@@ -38,7 +38,7 @@ fun MoviesListGrid(
     favoriteMoviesIds: List<Int>,
     moviesList: List<MovieData>,
     onFavoriteClick: (MovieData) -> Unit,
-    onItemClick: (MovieData) -> Unit
+    onItemClick: (Int) -> Unit
 ) {
     LazyVerticalGrid(
         modifier = modifier.fillMaxHeight(),
@@ -61,7 +61,7 @@ fun MovieItem(
     item: MovieData,
     isFavorite: Boolean,
     onFavoriteClick: (MovieData) -> Unit,
-    onItemClick: (MovieData) -> Unit
+    onItemClick: (Int) -> Unit
 ) {
     val decimalFormat = DecimalFormat("#.#")
     val averageRating = decimalFormat.format(item.averageRating)
@@ -74,7 +74,11 @@ fun MovieItem(
         elevation = CardDefaults.cardElevation(defaultElevation = 5.dp),
         modifier = Modifier
             .padding(6.dp)
-            .clickable { onItemClick.invoke(item) }
+            .clickable {
+                item.id?.let {
+                    onItemClick.invoke(it)
+                }
+            }
     ) {
         Column {
             CommonImage(

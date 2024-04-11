@@ -32,6 +32,7 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
+import com.example.movieapp.Destination
 import com.example.movieapp.model.MovieData
 import com.example.movieapp.model.api.RequestState
 import com.example.movieapp.ui.common.MoviesListGrid
@@ -62,8 +63,10 @@ fun SearchScreen(
             searchAppBarState = searchAppBarState,
             result = searchedMovies,
             favoriteMoviesIds = favoriteMoviesIds,
-            onItemClick = {
-                // to do
+            onItemClick = { id ->
+                val route = Destination.MovieDetails.createRoute(id.toString())
+                navController.navigate(route)
+
             },
             onFavoriteClick = {
                 if (!favoriteMoviesIds.contains(it.id)) {
@@ -82,7 +85,7 @@ private fun SearchMovieListContent(
     searchAppBarState: SearchAppBarState,
     favoriteMoviesIds: List<Int>,
     result: RequestState<List<MovieData>>,
-    onItemClick: (MovieData) -> Unit,
+    onItemClick: (Int) -> Unit,
     onFavoriteClick: (MovieData) -> Unit
 ) {
     Column(

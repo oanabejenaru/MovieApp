@@ -26,3 +26,26 @@ data class MovieData(
             )
     }
 }
+
+data class MovieDetailData(
+    val id: Int?,
+    @SerializedName("backdrop_path")
+    val backdropPath: String?,
+    @SerializedName("poster_path")
+    val posterPath: String?,
+    val title: String?,
+    val tagline: String?,
+    @SerializedName("release_date")
+    val releaseDate: String?,
+    @SerializedName("vote_average")
+    val voteAverage: Float?,
+    @SerializedName("vote_count")
+    val voteCount:Int?,
+    val genres: List<Genre>?,
+    val overview: String?
+)
+
+data class Genre(
+    val id: Int?,
+    val name: String?
+)

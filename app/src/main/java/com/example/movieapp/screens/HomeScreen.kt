@@ -33,6 +33,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
+import com.example.movieapp.Destination
 import com.example.movieapp.R
 import com.example.movieapp.model.MovieData
 import com.example.movieapp.model.RecommendationType
@@ -68,8 +69,9 @@ fun HomeScreen(
     ) { padding ->
         HomeContent(
             modifier = Modifier.padding(padding),
-            onItemClick = {
-
+            onItemClick = { id ->
+                val route = Destination.MovieDetails.createRoute(id.toString())
+                navController.navigate(route)
             },
             onFavoriteClick = {
                 if (!favoriteMoviesIds.contains(it.id)) {
@@ -140,7 +142,7 @@ fun SortAction(
 @Composable
 fun HomeContent(
     modifier: Modifier,
-    onItemClick: (MovieData) -> Unit,
+    onItemClick: (Int) -> Unit,
     onFavoriteClick: (MovieData) -> Unit,
     favoriteMoviesIds: List<Int>,
     nowPlayingMovies: RequestState<List<MovieData>>,
@@ -214,7 +216,7 @@ fun TabLayout(
 fun TabContent(
     pagerState: PagerState,
     modifier: Modifier,
-    onItemClick: (MovieData) -> Unit,
+    onItemClick: (Int) -> Unit,
     onFavoriteClick: (MovieData) -> Unit,
     favoriteMoviesIds: List<Int>,
     nowPlayingMovies: RequestState<List<MovieData>>,
@@ -261,7 +263,7 @@ fun TabContent(
                 HomeListContent(
                     modifier = modifier,
                     onFavoriteClick = onFavoriteClick,
-                    favoriteMoviesIds= favoriteMoviesIds,
+                    favoriteMoviesIds = favoriteMoviesIds,
                     onItemClick = onItemClick,
                     result = upcomingMovies
                 )
@@ -276,7 +278,7 @@ fun HomeListContent(
     favoriteMoviesIds: List<Int>,
     result: RequestState<List<MovieData>>,
     onFavoriteClick: (MovieData) -> Unit,
-    onItemClick: (MovieData) -> Unit
+    onItemClick: (Int) -> Unit
 ) {
     Column(
         modifier = Modifier.fillMaxSize(),

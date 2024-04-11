@@ -17,6 +17,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.navigation.NavController
+import com.example.movieapp.Destination
 import com.example.movieapp.model.MovieData
 import com.example.movieapp.model.api.RequestState
 import com.example.movieapp.ui.common.MoviesListGrid
@@ -36,8 +37,9 @@ fun FavoritesScreen(
     ) { padding ->
         FavoritesContent(
             modifier = Modifier.padding(padding),
-            onItemClick = {
-
+            onItemClick = { id ->
+                val route = Destination.MovieDetails.createRoute(id.toString())
+                navController.navigate(route)
             },
             onFavoriteClick = {
                 viewModel.removeFromFavorites(it.id)
@@ -64,7 +66,7 @@ fun FavoritesAppBar() {
 @Composable
 fun FavoritesContent(
     modifier: Modifier,
-    onItemClick: (MovieData) -> Unit,
+    onItemClick: (Int) -> Unit,
     onFavoriteClick: (MovieData) -> Unit,
     favoriteMoviesIds: List<Int>,
     result: RequestState<List<MovieData>>

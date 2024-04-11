@@ -2,6 +2,7 @@ package com.example.movieapp.repository
 
 import android.util.Log
 import com.example.movieapp.model.MovieData
+import com.example.movieapp.model.MovieDetailData
 import com.example.movieapp.model.RecommendationType
 import com.example.movieapp.model.api.MoviesApi
 import com.example.movieapp.model.api.RequestState
@@ -10,6 +11,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.async
+import kotlinx.coroutines.cancelChildren
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
@@ -33,12 +35,16 @@ class MoviesApiRepo(
     private val _searchedMovies = MutableStateFlow<RequestState<List<MovieData>>>(RequestState.Initial())
     val searchedMovies: StateFlow<RequestState<List<MovieData>>> = _searchedMovies
 
+    private val _movieDetails = MutableStateFlow<RequestState<MovieDetailData>>(RequestState.Initial())
+    val movieDetails: StateFlow<RequestState<MovieDetailData>> = _movieDetails
+
     private val exceptionHandler = CoroutineExceptionHandler { _, throwable ->
         onError("Exception : ${throwable.localizedMessage}")
     }
 
     private var job: Job? = null
     private var searchMoviesJob: Job? = null
+    private var getMovieDetailsJob : Job? = null
 
     init {
         getAllMovies()
@@ -122,6 +128,22 @@ class MoviesApiRepo(
         }
     }
 
+    fun getMovieDetails(movieId: Int) {
+        _movieDetails.value = RequestState.Loading()
+        getMovieDetailsJob = CoroutineScope(Dispatchers.IO + exceptionHandler).launch {
+            val response = api.getMovieDetails(movieId)
+            withContext(Dispatchers.Main) {
+                if (response.isSuccessful) {
+                    response.body()?.let {
+                        _movieDetails.value = RequestState.Success(it)
+                    }
+                } else {
+                    _movieDetails.value = RequestState.Error(response.message())
+                }
+            }
+        }
+    }
+
     private fun onError(message: String) {
         Log.e("MoviesApiRepo", message)
     }
@@ -129,5 +151,6 @@ class MoviesApiRepo(
     fun cancelJobs() {
         job?.cancel()
         searchMoviesJob?.cancel()
+        getMovieDetailsJob?.cancel()
     }
 }

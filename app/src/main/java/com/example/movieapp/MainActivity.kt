@@ -18,6 +18,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.movieapp.ui.theme.MovieAppTheme
 import com.example.movieapp.screens.FavoritesScreen
 import com.example.movieapp.screens.HomeScreen
+import com.example.movieapp.screens.MovieDetailsScreen
 import com.example.movieapp.screens.MoviesBottomNav
 import com.example.movieapp.screens.SearchScreen
 import com.example.movieapp.viewmodel.SharedViewModel
@@ -27,7 +28,9 @@ sealed class Destination(val route: String) {
     data object Favorites : Destination("Favorites")
     data object Home : Destination("Home")
     data object Search : Destination("Search")
-    data object MovieDetails: Destination("MovieDetails")
+    data object MovieDetails: Destination("MovieDetails/{movieId}") {
+        fun createRoute(movieId: String) = "MovieDetails/$movieId"
+    }
 }
 
 @AndroidEntryPoint
@@ -82,6 +85,13 @@ fun MovieAppScaffold(
                 SearchScreen(
                     navController = navController,
                     viewModel = sharedViewModel
+                )
+            }
+            composable(Destination.MovieDetails.route) { navBackStackEntry ->
+                val movieId = navBackStackEntry.arguments?.getString("movieId")
+                MovieDetailsScreen(
+                    viewModel = sharedViewModel,
+                    movieId = movieId?.toInt()
                 )
             }
         }
