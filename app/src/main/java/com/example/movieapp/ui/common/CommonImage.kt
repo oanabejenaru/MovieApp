@@ -1,6 +1,7 @@
 package com.example.movieapp.ui.common
 
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.runtime.Composable
@@ -17,15 +18,19 @@ fun CommonImage(
 ) {
     val painter = rememberAsyncImagePainter(model = url)
     val state = painter.state
+    Box(
+        modifier = modifier
+    ) {
+        Image(
+            painter = painter,
+            contentDescription = null,
+            modifier = modifier,
+            contentScale = contentScale
+        )
 
-    Image(
-        painter = painter,
-        contentDescription = null,
-        modifier = modifier,
-        contentScale = contentScale
-    )
-
-    if (state is AsyncImagePainter.State.Loading) {
-        CommonProgressSpinner()
+        if (state is AsyncImagePainter.State.Loading) {
+            CommonProgressSpinner()
+        }
     }
+
 }

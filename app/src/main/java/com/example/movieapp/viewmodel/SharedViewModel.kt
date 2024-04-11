@@ -6,6 +6,7 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.movieapp.model.MovieData
+import com.example.movieapp.model.MovieDetailData
 import com.example.movieapp.model.api.RequestState
 import com.example.movieapp.model.data.FavoriteMovie
 import com.example.movieapp.repository.FavoriteMoviesDbRepo
@@ -75,6 +76,12 @@ class SharedViewModel @Inject constructor(
     fun addToFavorites(movie : MovieData) {
         viewModelScope.launch {
             favoriteMoviesDbRepo.addFavoriteMovie(FavoriteMovie.fromMovieData(movie))
+        }
+    }
+
+    fun addToFavorites(movie: MovieDetailData) {
+        viewModelScope.launch {
+            favoriteMoviesDbRepo.addFavoriteMovie(FavoriteMovie.fromMovieDetailData(movie))
         }
     }
 

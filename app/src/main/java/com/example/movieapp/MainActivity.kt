@@ -90,6 +90,7 @@ fun MovieAppScaffold(
             composable(Destination.MovieDetails.route) { navBackStackEntry ->
                 val movieId = navBackStackEntry.arguments?.getString("movieId")
                 MovieDetailsScreen(
+                    navController = navController,
                     viewModel = sharedViewModel,
                     movieId = movieId?.toInt()
                 )

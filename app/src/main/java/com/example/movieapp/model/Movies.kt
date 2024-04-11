@@ -12,7 +12,7 @@ data class MovieData(
     @SerializedName("poster_path")
     val posterPath: String?,
     @SerializedName("release_date")
-    val yearOfRelease: String?,
+    val dateOfRelease: String?,
     @SerializedName("vote_average")
     val averageRating: Float?
 ) {
@@ -21,7 +21,7 @@ data class MovieData(
             MovieData(
                 id = favoriteMovie.apiId,
                 posterPath = favoriteMovie.posterPath,
-                yearOfRelease = favoriteMovie.yearOfRelease,
+                dateOfRelease = favoriteMovie.dateOfRelease,
                 averageRating = favoriteMovie.averageRating
             )
     }

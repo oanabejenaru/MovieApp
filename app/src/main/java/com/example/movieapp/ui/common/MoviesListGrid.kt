@@ -30,7 +30,7 @@ import androidx.compose.ui.unit.dp
 import com.example.movieapp.model.MovieData
 import com.example.movieapp.ui.theme.RatingYellow
 import com.example.movieapp.util.Constants
-import java.text.DecimalFormat
+import com.example.movieapp.util.Utils
 
 @Composable
 fun MoviesListGrid(
@@ -63,12 +63,7 @@ fun MovieItem(
     onFavoriteClick: (MovieData) -> Unit,
     onItemClick: (Int) -> Unit
 ) {
-    val decimalFormat = DecimalFormat("#.#")
-    val averageRating = decimalFormat.format(item.averageRating)
-    var yearOfRelease = "-"
-    if (!item.yearOfRelease.isNullOrEmpty() && item.yearOfRelease.count() >= 4) {
-        yearOfRelease = item.yearOfRelease.slice(IntRange(0, 3))
-    }
+
 
     ElevatedCard(
         elevation = CardDefaults.cardElevation(defaultElevation = 5.dp),
@@ -94,14 +89,14 @@ fun MovieItem(
                     .fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceEvenly
             ) {
-                Text(text = yearOfRelease)
+                Text(text = Utils.getYearFromDateString(item.dateOfRelease))
                 Row {
                     Icon(
                         Icons.Filled.Star,
                         contentDescription = null,
                         tint = RatingYellow
                     )
-                    Text(text = averageRating)
+                    Text(text = Utils.formatNumberToOneDecimal(item.averageRating))
                 }
                 IconButton(
                     modifier = Modifier.size(24.dp),
