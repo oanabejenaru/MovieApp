@@ -138,9 +138,9 @@ fun SortAction(
                 .forEach { sortMode ->
                     DropdownMenuItem(
                         trailingIcon = {
-                             if (currentSortMode == sortMode) {
-                                 Icon(Icons.Filled.Check, contentDescription = null)
-                             }
+                            if (currentSortMode == sortMode) {
+                                Icon(Icons.Filled.Check, contentDescription = null)
+                            }
                         },
                         text = { Text(text = sortMode.sortName) },
                         onClick = {

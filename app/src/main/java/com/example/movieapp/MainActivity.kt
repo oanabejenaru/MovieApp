@@ -28,7 +28,7 @@ sealed class Destination(val route: String) {
     data object Favorites : Destination("Favorites")
     data object Home : Destination("Home")
     data object Search : Destination("Search")
-    data object MovieDetails: Destination("MovieDetails/{movieId}") {
+    data object MovieDetails : Destination("MovieDetails/{movieId}") {
         fun createRoute(movieId: String) = "MovieDetails/$movieId"
     }
 }

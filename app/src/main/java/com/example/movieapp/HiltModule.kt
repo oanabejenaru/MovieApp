@@ -37,6 +37,6 @@ class HiltModule {
     @Provides
     fun provideFavoriteMoviesDbRepo(
         favoriteMoviesDao: FavoriteMoviesDao
-    ) : FavoriteMoviesDbRepo =
+    ): FavoriteMoviesDbRepo =
         FavoriteMoviesDbRepoImpl(favoriteMoviesDao)
 }

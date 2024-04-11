@@ -26,6 +26,7 @@ data class FavoriteMovie(
                 averageRating = movieData.averageRating,
                 timeStamp = System.currentTimeMillis()
             )
+
         fun fromMovieDetailData(movieDetailData: MovieDetailData) =
             FavoriteMovie(
                 id = 0,

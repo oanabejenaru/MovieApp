@@ -10,11 +10,11 @@ import retrofit2.http.Query
 
 interface MoviesApi {
     @GET("movie/{recommendation_type}")
-    suspend fun getMovies(@Path("recommendation_type") recommendationType : String) : Response<MoviesApiResponse>
+    suspend fun getMovies(@Path("recommendation_type") recommendationType: String): Response<MoviesApiResponse>
 
     @GET("search/movie")
-    suspend fun searchMovies(@Query("query") query: String) : Response<MoviesApiResponse>
+    suspend fun searchMovies(@Query("query") query: String): Response<MoviesApiResponse>
 
     @GET("movie/{movie_id}")
-    suspend fun getMovieDetails(@Path("movie_id") movieId : Int) : Response<MovieDetailData>
+    suspend fun getMovieDetails(@Path("movie_id") movieId: Int): Response<MovieDetailData>
 }

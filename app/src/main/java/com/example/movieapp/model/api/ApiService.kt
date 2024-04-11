@@ -11,7 +11,7 @@ import retrofit2.converter.gson.GsonConverterFactory
 object ApiService {
     private const val BASE_URL = "https://api.themoviedb.org/3/"
 
-    private fun getRetrofit() : Retrofit {
+    private fun getRetrofit(): Retrofit {
         val apiKey = BuildConfig.MOVIE_API_KEY
         val clientInterceptor = Interceptor { chain ->
             var request: Request = chain.request()

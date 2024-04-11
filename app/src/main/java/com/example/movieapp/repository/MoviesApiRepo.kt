@@ -22,22 +22,28 @@ import kotlinx.coroutines.withContext
 class MoviesApiRepo(
     private val api: MoviesApi
 ) {
-    private val _nowPlayingMovies = MutableStateFlow<RequestState<List<MovieData>>>(RequestState.Initial())
+    private val _nowPlayingMovies =
+        MutableStateFlow<RequestState<List<MovieData>>>(RequestState.Initial())
     val nowPlayingMovies: StateFlow<RequestState<List<MovieData>>> = _nowPlayingMovies
 
-    private val _popularMovies = MutableStateFlow<RequestState<List<MovieData>>>(RequestState.Initial())
+    private val _popularMovies =
+        MutableStateFlow<RequestState<List<MovieData>>>(RequestState.Initial())
     val popularMovies: StateFlow<RequestState<List<MovieData>>> = _popularMovies
 
-    private val _topRatedMovies = MutableStateFlow<RequestState<List<MovieData>>>(RequestState.Initial())
+    private val _topRatedMovies =
+        MutableStateFlow<RequestState<List<MovieData>>>(RequestState.Initial())
     val topRatedMovies: StateFlow<RequestState<List<MovieData>>> = _topRatedMovies
 
-    private val _upcomingMovies = MutableStateFlow<RequestState<List<MovieData>>>(RequestState.Initial())
+    private val _upcomingMovies =
+        MutableStateFlow<RequestState<List<MovieData>>>(RequestState.Initial())
     val upcomingMovies: StateFlow<RequestState<List<MovieData>>> = _upcomingMovies
 
-    private val _searchedMovies = MutableStateFlow<RequestState<List<MovieData>>>(RequestState.Initial())
+    private val _searchedMovies =
+        MutableStateFlow<RequestState<List<MovieData>>>(RequestState.Initial())
     val searchedMovies: StateFlow<RequestState<List<MovieData>>> = _searchedMovies
 
-    private val _movieDetails = MutableStateFlow<RequestState<MovieDetailData>>(RequestState.Initial())
+    private val _movieDetails =
+        MutableStateFlow<RequestState<MovieDetailData>>(RequestState.Initial())
     val movieDetails: StateFlow<RequestState<MovieDetailData>> = _movieDetails
 
     private val allMoviesExceptionHandler = CoroutineExceptionHandler { _, throwable ->
@@ -54,7 +60,7 @@ class MoviesApiRepo(
 
     private var job: Job? = null
     private var searchMoviesJob: Job? = null
-    private var getMovieDetailsJob : Job? = null
+    private var getMovieDetailsJob: Job? = null
 
     init {
         getAllMovies()
@@ -68,7 +74,8 @@ class MoviesApiRepo(
 
         job = CoroutineScope(Dispatchers.IO + allMoviesExceptionHandler).launch {
             val nowPlayingDeferred = async(Dispatchers.IO) {
-                val response = api.getMovies(recommendationType = RecommendationType.NOW_PLAYING.type)
+                val response =
+                    api.getMovies(recommendationType = RecommendationType.NOW_PLAYING.type)
                 withContext(Dispatchers.Main) {
                     if (response.isSuccessful) {
                         response.body()?.let {
@@ -122,7 +129,7 @@ class MoviesApiRepo(
         }
     }
 
-    fun searchMovies(query : String) {
+    fun searchMovies(query: String) {
         _searchedMovies.value = RequestState.Loading()
         searchMoviesJob = CoroutineScope(
             Dispatchers.IO + searchMoviesExceptionHandler
@@ -164,7 +171,8 @@ class MoviesApiRepo(
         val topRatedMovies = _topRatedMovies.value.data
         val upcomingMovies = _upcomingMovies.value.data
         if (nowPlayingMovies != null && popularMovies != null
-            && topRatedMovies != null && upcomingMovies != null) {
+            && topRatedMovies != null && upcomingMovies != null
+        ) {
             when (sortMode) {
                 SortMode.RATING_ASCENDING -> {
                     _nowPlayingMovies.value =
@@ -187,40 +195,50 @@ class MoviesApiRepo(
                     _upcomingMovies.value =
                         RequestState.Success(upcomingMovies.sortedByDescending { it.averageRating })
                 }
+
                 SortMode.RELEASE_ASCENDING -> {
                     _nowPlayingMovies.value =
                         RequestState.Success(nowPlayingMovies.sortedBy {
-                            Utils.getYearFromDateString(it.dateOfRelease).toInt() }
+                            Utils.getYearFromDateString(it.dateOfRelease).toInt()
+                        }
                         )
                     _popularMovies.value =
                         RequestState.Success(popularMovies.sortedBy {
-                            Utils.getYearFromDateString(it.dateOfRelease).toInt() }
+                            Utils.getYearFromDateString(it.dateOfRelease).toInt()
+                        }
                         )
                     _topRatedMovies.value =
                         RequestState.Success(topRatedMovies.sortedBy {
-                            Utils.getYearFromDateString(it.dateOfRelease).toInt() }
+                            Utils.getYearFromDateString(it.dateOfRelease).toInt()
+                        }
                         )
                     _upcomingMovies.value =
                         RequestState.Success(upcomingMovies.sortedBy {
-                            Utils.getYearFromDateString(it.dateOfRelease).toInt() }
+                            Utils.getYearFromDateString(it.dateOfRelease).toInt()
+                        }
                         )
                 }
+
                 SortMode.RELEASE_DESCENDING -> {
                     _nowPlayingMovies.value =
                         RequestState.Success(nowPlayingMovies.sortedByDescending {
-                            Utils.getYearFromDateString(it.dateOfRelease).toInt() }
+                            Utils.getYearFromDateString(it.dateOfRelease).toInt()
+                        }
                         )
                     _popularMovies.value =
                         RequestState.Success(popularMovies.sortedByDescending {
-                            Utils.getYearFromDateString(it.dateOfRelease).toInt() }
+                            Utils.getYearFromDateString(it.dateOfRelease).toInt()
+                        }
                         )
                     _topRatedMovies.value =
                         RequestState.Success(topRatedMovies.sortedByDescending {
-                            Utils.getYearFromDateString(it.dateOfRelease).toInt() }
+                            Utils.getYearFromDateString(it.dateOfRelease).toInt()
+                        }
                         )
                     _upcomingMovies.value =
                         RequestState.Success(upcomingMovies.sortedByDescending {
-                            Utils.getYearFromDateString(it.dateOfRelease).toInt() }
+                            Utils.getYearFromDateString(it.dateOfRelease).toInt()
+                        }
                         )
                 }
             }

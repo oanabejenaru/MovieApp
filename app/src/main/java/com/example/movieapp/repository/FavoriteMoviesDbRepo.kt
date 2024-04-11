@@ -5,8 +5,8 @@ import com.example.movieapp.model.data.FavoriteMoviesDao
 import kotlinx.coroutines.flow.Flow
 
 interface FavoriteMoviesDbRepo {
-    suspend fun getAllFavoriteMovies() : Flow<List<FavoriteMovie>>
-    suspend fun getAllFavoriteMoviesIds() : Flow<List<Int>>
+    suspend fun getAllFavoriteMovies(): Flow<List<FavoriteMovie>>
+    suspend fun getAllFavoriteMoviesIds(): Flow<List<Int>>
     suspend fun addFavoriteMovie(favoriteMovie: FavoriteMovie)
     suspend fun removeFavoriteMovie(apiId: Int)
 }

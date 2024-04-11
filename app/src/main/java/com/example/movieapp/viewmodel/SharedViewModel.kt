@@ -42,7 +42,8 @@ class SharedViewModel @Inject constructor(
         private set
 
     val favoriteMoviesIds = MutableStateFlow<List<Int>>(listOf())
-    val resultFavoriteMovies = MutableStateFlow<RequestState<List<MovieData>>>(RequestState.Initial())
+    val resultFavoriteMovies =
+        MutableStateFlow<RequestState<List<MovieData>>>(RequestState.Initial())
 
     init {
         getFavoriteMoviesIds()
@@ -73,11 +74,12 @@ class SharedViewModel @Inject constructor(
                 }
             }
         } catch (e: Exception) {
-            resultFavoriteMovies.value = RequestState.Error(e.message ?: "Cannot retrieve favorite movies")
+            resultFavoriteMovies.value =
+                RequestState.Error(e.message ?: "Cannot retrieve favorite movies")
         }
     }
 
-    fun addToFavorites(movie : MovieData) {
+    fun addToFavorites(movie: MovieData) {
         viewModelScope.launch {
             favoriteMoviesDbRepo.addFavoriteMovie(FavoriteMovie.fromMovieData(movie))
         }
@@ -90,7 +92,7 @@ class SharedViewModel @Inject constructor(
     }
 
     fun removeFromFavorites(movieId: Int?) {
-        movieId?.let {id ->
+        movieId?.let { id ->
             viewModelScope.launch {
                 favoriteMoviesDbRepo.removeFavoriteMovie(id)
             }
@@ -106,7 +108,7 @@ class SharedViewModel @Inject constructor(
         searchAppBarState = newState
     }
 
-    fun updateSearchTextState(newText : String) {
+    fun updateSearchTextState(newText: String) {
         searchTextState = newText
     }
 

@@ -227,14 +227,16 @@ fun ScrollableDetailsContent(
                 }
 
                 movie.genres?.let { genreList ->
-                    when(genreList.size) {
+                    when (genreList.size) {
                         1 -> {
                             GenreText(text = genreList[0].name)
                         }
+
                         2 -> {
                             GenreText(text = genreList[0].name)
                             GenreText(text = genreList[1].name)
                         }
+
                         else -> {
                             //skip genres
                         }
@@ -267,7 +269,7 @@ fun ScrollableDetailsContent(
         }
 
         CommonDivider()
-    
+
         Text(
             text = "Overview",
             style = MaterialTheme.typography.titleLarge,
@@ -284,7 +286,7 @@ fun ScrollableDetailsContent(
 
 @Composable
 fun GenreText(
-    text : String
+    text: String
 ) {
     Text(
         modifier = Modifier

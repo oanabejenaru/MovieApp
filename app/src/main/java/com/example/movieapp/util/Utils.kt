@@ -3,7 +3,7 @@ package com.example.movieapp.util
 import java.text.DecimalFormat
 
 object Utils {
-    fun formatNumberToOneDecimal(number: Float?) : String {
+    fun formatNumberToOneDecimal(number: Float?): String {
         val decimalFormat = DecimalFormat("#.#")
         return decimalFormat.format(number)
     }

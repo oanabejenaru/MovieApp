@@ -1,7 +1,7 @@
 package com.example.movieapp.model.api
 
 sealed class RequestState<T>(
-    val data:T? = null,
+    val data: T? = null,
     val message: String? = null
 ) {
     class Initial<T>() : RequestState<T>()
