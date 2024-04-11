@@ -20,14 +20,14 @@ import com.example.movieapp.screens.FavoritesScreen
 import com.example.movieapp.screens.HomeScreen
 import com.example.movieapp.screens.MoviesBottomNav
 import com.example.movieapp.screens.SearchScreen
-import com.example.movieapp.viewmodel.HomeScreenViewModel
-import com.example.movieapp.viewmodel.SearchScreenViewModel
+import com.example.movieapp.viewmodel.SharedViewModel
 import dagger.hilt.android.AndroidEntryPoint
 
 sealed class Destination(val route: String) {
     data object Favorites : Destination("Favorites")
     data object Home : Destination("Home")
     data object Search : Destination("Search")
+    data object MovieDetails: Destination("MovieDetails")
 }
 
 @AndroidEntryPoint
@@ -55,8 +55,7 @@ class MainActivity : ComponentActivity() {
 fun MovieAppScaffold(
     navController: NavHostController
 ) {
-    val homeScreenViewModel = hiltViewModel<HomeScreenViewModel>()
-    val searchScreenViewModel = hiltViewModel<SearchScreenViewModel>()
+    val sharedViewModel = hiltViewModel<SharedViewModel>()
     Scaffold(
         bottomBar = {
             MoviesBottomNav(navController = navController)
@@ -68,18 +67,21 @@ fun MovieAppScaffold(
             startDestination = Destination.Home.route
         ) {
             composable(Destination.Favorites.route) {
-                FavoritesScreen(navController = navController, paddingValues = paddingValues)
+                FavoritesScreen(
+                    navController = navController,
+                    viewModel = sharedViewModel
+                )
             }
             composable(Destination.Home.route) {
                 HomeScreen(
                     navController = navController,
-                    viewModel = homeScreenViewModel
+                    viewModel = sharedViewModel
                 )
             }
             composable(Destination.Search.route) {
                 SearchScreen(
                     navController = navController,
-                    viewModel = searchScreenViewModel
+                    viewModel = sharedViewModel
                 )
             }
         }

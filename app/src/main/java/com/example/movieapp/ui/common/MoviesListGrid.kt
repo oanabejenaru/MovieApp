@@ -5,6 +5,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -15,6 +16,7 @@ import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Favorite
+import androidx.compose.material.icons.filled.Star
 import androidx.compose.material.icons.outlined.FavoriteBorder
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ElevatedCard
@@ -24,9 +26,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
-import com.example.movieapp.R
 import com.example.movieapp.model.MovieData
 import com.example.movieapp.ui.theme.RatingYellow
 import com.example.movieapp.util.Constants
@@ -41,7 +41,7 @@ fun MoviesListGrid(
     onItemClick: (MovieData) -> Unit
 ) {
     LazyVerticalGrid(
-        modifier = modifier,
+        modifier = modifier.fillMaxHeight(),
         columns = GridCells.Fixed(count = 2)
     ) {
         items(moviesList) { movie ->
@@ -65,7 +65,10 @@ fun MovieItem(
 ) {
     val decimalFormat = DecimalFormat("#.#")
     val averageRating = decimalFormat.format(item.averageRating)
-    val yearOfRelease = item.yearOfRelease?.slice(IntRange(0, 3)) ?: ""
+    var yearOfRelease = "-"
+    if (!item.yearOfRelease.isNullOrEmpty() && item.yearOfRelease.count() >= 4) {
+        yearOfRelease = item.yearOfRelease.slice(IntRange(0, 3))
+    }
 
     ElevatedCard(
         elevation = CardDefaults.cardElevation(defaultElevation = 5.dp),
@@ -90,7 +93,7 @@ fun MovieItem(
                 Text(text = yearOfRelease)
                 Row {
                     Icon(
-                        painter = painterResource(id = R.drawable.ic_rating_star),
+                        Icons.Filled.Star,
                         contentDescription = null,
                         tint = RatingYellow
                     )

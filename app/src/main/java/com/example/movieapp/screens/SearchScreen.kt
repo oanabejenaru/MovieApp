@@ -33,17 +33,17 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.example.movieapp.model.MovieData
-import com.example.movieapp.model.api.NetworkResult
+import com.example.movieapp.model.api.RequestState
 import com.example.movieapp.ui.common.MoviesListGrid
 import com.example.movieapp.util.SearchAppBarState
-import com.example.movieapp.viewmodel.SearchScreenViewModel
+import com.example.movieapp.viewmodel.SharedViewModel
 
 @Composable
 fun SearchScreen(
     navController: NavController,
-    viewModel: SearchScreenViewModel,
+    viewModel: SharedViewModel,
 ) {
-    val searchedMovies by viewModel.result.collectAsState()
+    val searchedMovies by viewModel.resultSearchedMovies.collectAsState()
     val searchAppBarState: SearchAppBarState = viewModel.searchAppBarState
     val searchTextState: String = viewModel.searchTextState
     val favoriteMoviesIds by viewModel.favoriteMoviesIds.collectAsState()
@@ -81,7 +81,7 @@ private fun SearchMovieListContent(
     modifier: Modifier,
     searchAppBarState: SearchAppBarState,
     favoriteMoviesIds: List<Int>,
-    result: NetworkResult<List<MovieData>>,
+    result: RequestState<List<MovieData>>,
     onItemClick: (MovieData) -> Unit,
     onFavoriteClick: (MovieData) -> Unit
 ) {
@@ -92,19 +92,19 @@ private fun SearchMovieListContent(
     ) {
         if (searchAppBarState == SearchAppBarState.TRIGGERED) {
             when (result) {
-                is NetworkResult.Initial -> {
+                is RequestState.Initial -> {
                     // nothing to do
                 }
 
-                is NetworkResult.Error -> {
+                is RequestState.Error -> {
                     Text(text = "Error: ${result.message}")
                 }
 
-                is NetworkResult.Loading -> {
+                is RequestState.Loading -> {
                     CircularProgressIndicator()
                 }
 
-                is NetworkResult.Success -> {
+                is RequestState.Success -> {
                     if (!result.data.isNullOrEmpty()) {
                         MoviesListGrid(
                             modifier = modifier,
@@ -126,7 +126,7 @@ private fun SearchMovieListContent(
 
 @Composable
 private fun SearchScreenAppBar(
-    viewModel: SearchScreenViewModel,
+    viewModel: SharedViewModel,
     searchAppBarState: SearchAppBarState,
     searchTextState: String
 ) {

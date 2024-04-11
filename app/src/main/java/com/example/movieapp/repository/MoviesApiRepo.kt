@@ -4,7 +4,7 @@ import android.util.Log
 import com.example.movieapp.model.MovieData
 import com.example.movieapp.model.RecommendationType
 import com.example.movieapp.model.api.MoviesApi
-import com.example.movieapp.model.api.NetworkResult
+import com.example.movieapp.model.api.RequestState
 import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -18,20 +18,20 @@ import kotlinx.coroutines.withContext
 class MoviesApiRepo(
     private val api: MoviesApi
 ) {
-    private val _nowPlayingMovies = MutableStateFlow<NetworkResult<List<MovieData>>>(NetworkResult.Initial())
-    val nowPlayingMovies: StateFlow<NetworkResult<List<MovieData>>> = _nowPlayingMovies
+    private val _nowPlayingMovies = MutableStateFlow<RequestState<List<MovieData>>>(RequestState.Initial())
+    val nowPlayingMovies: StateFlow<RequestState<List<MovieData>>> = _nowPlayingMovies
 
-    private val _popularMovies = MutableStateFlow<NetworkResult<List<MovieData>>>(NetworkResult.Initial())
-    val popularMovies: StateFlow<NetworkResult<List<MovieData>>> = _popularMovies
+    private val _popularMovies = MutableStateFlow<RequestState<List<MovieData>>>(RequestState.Initial())
+    val popularMovies: StateFlow<RequestState<List<MovieData>>> = _popularMovies
 
-    private val _topRatedMovies = MutableStateFlow<NetworkResult<List<MovieData>>>(NetworkResult.Initial())
-    val topRatedMovies: StateFlow<NetworkResult<List<MovieData>>> = _topRatedMovies
+    private val _topRatedMovies = MutableStateFlow<RequestState<List<MovieData>>>(RequestState.Initial())
+    val topRatedMovies: StateFlow<RequestState<List<MovieData>>> = _topRatedMovies
 
-    private val _upcomingMovies = MutableStateFlow<NetworkResult<List<MovieData>>>(NetworkResult.Initial())
-    val upcomingMovies: StateFlow<NetworkResult<List<MovieData>>> = _upcomingMovies
+    private val _upcomingMovies = MutableStateFlow<RequestState<List<MovieData>>>(RequestState.Initial())
+    val upcomingMovies: StateFlow<RequestState<List<MovieData>>> = _upcomingMovies
 
-    private val _searchedMovies = MutableStateFlow<NetworkResult<List<MovieData>>>(NetworkResult.Initial())
-    val searchedMovies: StateFlow<NetworkResult<List<MovieData>>> = _searchedMovies
+    private val _searchedMovies = MutableStateFlow<RequestState<List<MovieData>>>(RequestState.Initial())
+    val searchedMovies: StateFlow<RequestState<List<MovieData>>> = _searchedMovies
 
     private val exceptionHandler = CoroutineExceptionHandler { _, throwable ->
         onError("Exception : ${throwable.localizedMessage}")
@@ -45,10 +45,10 @@ class MoviesApiRepo(
     }
 
     private fun getAllMovies() {
-        _nowPlayingMovies.value = NetworkResult.Loading()
-        _popularMovies.value = NetworkResult.Loading()
-        _topRatedMovies.value = NetworkResult.Loading()
-        _upcomingMovies.value = NetworkResult.Loading()
+        _nowPlayingMovies.value = RequestState.Loading()
+        _popularMovies.value = RequestState.Loading()
+        _topRatedMovies.value = RequestState.Loading()
+        _upcomingMovies.value = RequestState.Loading()
 
         job = CoroutineScope(Dispatchers.IO).launch {
             val nowPlayingDeferred = async(Dispatchers.IO + exceptionHandler) {
@@ -56,10 +56,10 @@ class MoviesApiRepo(
                 withContext(Dispatchers.Main) {
                     if (response.isSuccessful) {
                         response.body()?.let {
-                            _nowPlayingMovies.value = NetworkResult.Success(it.results)
+                            _nowPlayingMovies.value = RequestState.Success(it.results)
                         }
                     } else {
-                        _nowPlayingMovies.value = NetworkResult.Error(response.message())
+                        _nowPlayingMovies.value = RequestState.Error(response.message())
                     }
                 }
             }
@@ -69,10 +69,10 @@ class MoviesApiRepo(
                 withContext(Dispatchers.Main) {
                     if (response.isSuccessful) {
                         response.body()?.let {
-                            _popularMovies.value = NetworkResult.Success(it.results)
+                            _popularMovies.value = RequestState.Success(it.results)
                         }
                     } else {
-                        _popularMovies.value = NetworkResult.Error(response.message())
+                        _popularMovies.value = RequestState.Error(response.message())
                     }
                 }
             }
@@ -82,10 +82,10 @@ class MoviesApiRepo(
                 withContext(Dispatchers.Main) {
                     if (response.isSuccessful) {
                         response.body()?.let {
-                            _topRatedMovies.value = NetworkResult.Success(it.results)
+                            _topRatedMovies.value = RequestState.Success(it.results)
                         }
                     } else {
-                        _topRatedMovies.value = NetworkResult.Error(response.message())
+                        _topRatedMovies.value = RequestState.Error(response.message())
                     }
                 }
             }
@@ -95,10 +95,10 @@ class MoviesApiRepo(
                 withContext(Dispatchers.Main) {
                     if (response.isSuccessful) {
                         response.body()?.let {
-                            _upcomingMovies.value = NetworkResult.Success(it.results)
+                            _upcomingMovies.value = RequestState.Success(it.results)
                         }
                     } else {
-                        _upcomingMovies.value = NetworkResult.Error(response.message())
+                        _upcomingMovies.value = RequestState.Error(response.message())
                     }
                 }
             }
@@ -107,16 +107,16 @@ class MoviesApiRepo(
     }
 
     fun searchMovies(query : String) {
-        _searchedMovies.value = NetworkResult.Loading()
+        _searchedMovies.value = RequestState.Loading()
         searchMoviesJob = CoroutineScope(Dispatchers.IO + exceptionHandler).launch {
             val response = api.searchMovies(query)
             withContext(Dispatchers.Main) {
                 if (response.isSuccessful) {
                     response.body()?.let {
-                        _searchedMovies.value = NetworkResult.Success(it.results)
+                        _searchedMovies.value = RequestState.Success(it.results)
                     }
                 } else {
-                    _searchedMovies.value = NetworkResult.Error(response.message())
+                    _searchedMovies.value = RequestState.Error(response.message())
                 }
             }
         }
@@ -126,7 +126,7 @@ class MoviesApiRepo(
         Log.e("MoviesApiRepo", message)
     }
 
-    fun cancelJob() {
+    fun cancelJobs() {
         job?.cancel()
         searchMoviesJob?.cancel()
     }

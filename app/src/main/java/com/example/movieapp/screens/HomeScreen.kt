@@ -37,9 +37,9 @@ import com.example.movieapp.R
 import com.example.movieapp.model.MovieData
 import com.example.movieapp.model.RecommendationType
 import com.example.movieapp.model.SortMode
-import com.example.movieapp.model.api.NetworkResult
+import com.example.movieapp.model.api.RequestState
 import com.example.movieapp.ui.common.MoviesListGrid
-import com.example.movieapp.viewmodel.HomeScreenViewModel
+import com.example.movieapp.viewmodel.SharedViewModel
 import com.google.accompanist.pager.ExperimentalPagerApi
 import com.google.accompanist.pager.HorizontalPager
 import com.google.accompanist.pager.PagerState
@@ -49,7 +49,7 @@ import kotlinx.coroutines.launch
 @Composable
 fun HomeScreen(
     navController: NavController,
-    viewModel: HomeScreenViewModel
+    viewModel: SharedViewModel
 ) {
     val nowPlayingMovies by viewModel.resultNowPlayingMovies.collectAsState()
     val popularMovies by viewModel.resultPopularMovies.collectAsState()
@@ -143,10 +143,10 @@ fun HomeContent(
     onItemClick: (MovieData) -> Unit,
     onFavoriteClick: (MovieData) -> Unit,
     favoriteMoviesIds: List<Int>,
-    nowPlayingMovies: NetworkResult<List<MovieData>>,
-    popularMovies: NetworkResult<List<MovieData>>,
-    topRatedMovies: NetworkResult<List<MovieData>>,
-    upcomingMovies: NetworkResult<List<MovieData>>
+    nowPlayingMovies: RequestState<List<MovieData>>,
+    popularMovies: RequestState<List<MovieData>>,
+    topRatedMovies: RequestState<List<MovieData>>,
+    upcomingMovies: RequestState<List<MovieData>>
 ) {
     val pagerState = rememberPagerState(initialPage = 0)
 
@@ -217,10 +217,10 @@ fun TabContent(
     onItemClick: (MovieData) -> Unit,
     onFavoriteClick: (MovieData) -> Unit,
     favoriteMoviesIds: List<Int>,
-    nowPlayingMovies: NetworkResult<List<MovieData>>,
-    popularMovies: NetworkResult<List<MovieData>>,
-    topRatedMovies: NetworkResult<List<MovieData>>,
-    upcomingMovies: NetworkResult<List<MovieData>>
+    nowPlayingMovies: RequestState<List<MovieData>>,
+    popularMovies: RequestState<List<MovieData>>,
+    topRatedMovies: RequestState<List<MovieData>>,
+    upcomingMovies: RequestState<List<MovieData>>
 ) {
     HorizontalPager(
         state = pagerState,
@@ -274,7 +274,7 @@ fun TabContent(
 fun HomeListContent(
     modifier: Modifier,
     favoriteMoviesIds: List<Int>,
-    result: NetworkResult<List<MovieData>>,
+    result: RequestState<List<MovieData>>,
     onFavoriteClick: (MovieData) -> Unit,
     onItemClick: (MovieData) -> Unit
 ) {
@@ -284,10 +284,10 @@ fun HomeListContent(
         verticalArrangement = Arrangement.Center
     ) {
         when (result) {
-            is NetworkResult.Initial -> {
+            is RequestState.Initial -> {
                 // nothing to do for now
             }
-            is NetworkResult.Success -> {
+            is RequestState.Success -> {
                 if (!result.data.isNullOrEmpty()) {
                     MoviesListGrid(
                         modifier = modifier,
@@ -301,11 +301,11 @@ fun HomeListContent(
                 }
             }
 
-            is NetworkResult.Loading -> {
+            is RequestState.Loading -> {
                 CircularProgressIndicator()
             }
 
-            is NetworkResult.Error -> {
+            is RequestState.Error -> {
                 Text(text = "Error: ${result.message}")
             }
         }

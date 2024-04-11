@@ -1,5 +1,8 @@
 package com.example.movieapp.screens
 
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Favorite
+import androidx.compose.material.icons.outlined.Search
 import androidx.compose.material3.Icon
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
@@ -17,9 +20,7 @@ fun MoviesBottomNav(navController: NavController) {
         val navBackStackEntry = navController.currentBackStackEntryAsState()
         val currentDestination = navBackStackEntry.value?.destination
 
-        val iconFavorites = painterResource(id = R.drawable.ic_favorites)
         val iconHome = painterResource(id = R.drawable.ic_movies)
-        val iconSearch = painterResource(id = R.drawable.ic_search)
 
         NavigationBarItem(
             selected = currentDestination?.route == Destination.Favorites.route,
@@ -29,7 +30,7 @@ fun MoviesBottomNav(navController: NavController) {
                     launchSingleTop = true
                 }
             },
-            icon = { Icon(painter = iconFavorites, contentDescription = null) },
+            icon = { Icon(Icons.Filled.Favorite, contentDescription = null) },
             label = { Text(text = Destination.Favorites.route) }
         )
 
@@ -53,7 +54,7 @@ fun MoviesBottomNav(navController: NavController) {
                     launchSingleTop = true
                 }
             },
-            icon = { Icon(painter = iconSearch, contentDescription = null) },
+            icon = { Icon(Icons.Outlined.Search, contentDescription = null) },
             label = { Text(text = Destination.Search.route) }
         )
     }
