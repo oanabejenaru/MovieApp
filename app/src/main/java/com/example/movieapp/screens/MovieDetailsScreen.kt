@@ -64,7 +64,10 @@ fun MovieDetailsScreen(
     ) {
         when (movieDetailsResult) {
             is RequestState.Error -> {
-                Text(text = "Couldn't get movie details")
+                Text(
+                    modifier = Modifier.align(Alignment.Center),
+                    text = "Couldn't get movie details"
+                )
             }
 
             is RequestState.Initial -> {

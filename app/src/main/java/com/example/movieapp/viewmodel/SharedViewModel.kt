@@ -7,6 +7,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.movieapp.model.MovieData
 import com.example.movieapp.model.MovieDetailData
+import com.example.movieapp.model.SortMode
 import com.example.movieapp.model.api.RequestState
 import com.example.movieapp.model.data.FavoriteMovie
 import com.example.movieapp.repository.FavoriteMoviesDbRepo
@@ -35,6 +36,9 @@ class SharedViewModel @Inject constructor(
         private set
 
     var searchTextState by mutableStateOf("")
+        private set
+
+    var currentSortMode by mutableStateOf<SortMode?>(null)
         private set
 
     val favoriteMoviesIds = MutableStateFlow<List<Int>>(listOf())
@@ -104,6 +108,11 @@ class SharedViewModel @Inject constructor(
 
     fun updateSearchTextState(newText : String) {
         searchTextState = newText
+    }
+
+    fun applySortMode(sortMode: SortMode) {
+        currentSortMode = sortMode
+        apiRepo.applySortMode(sortMode)
     }
 
     override fun onCleared() {

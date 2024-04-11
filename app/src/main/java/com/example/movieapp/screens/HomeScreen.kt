@@ -6,6 +6,8 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentHeight
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Check
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
@@ -58,11 +60,14 @@ fun HomeScreen(
     val upcomingMovies by viewModel.resultUpcomingMovies.collectAsState()
     val favoriteMoviesIds by viewModel.favoriteMoviesIds.collectAsState()
 
+    val currentSortMode = viewModel.currentSortMode
+
     Scaffold(
         topBar = {
             HomeAppBar(
+                currentSortMode = currentSortMode,
                 onSortClicked = {
-                    // to do
+                    viewModel.applySortMode(it)
                 }
             )
         }
@@ -93,6 +98,7 @@ fun HomeScreen(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HomeAppBar(
+    currentSortMode: SortMode?,
     onSortClicked: (SortMode) -> Unit
 ) {
     TopAppBar(
@@ -100,7 +106,10 @@ fun HomeAppBar(
             Text(text = "Home", color = Color.White)
         },
         actions = {
-            SortAction(onSortClicked = onSortClicked)
+            SortAction(
+                currentSortMode = currentSortMode,
+                onSortClicked = onSortClicked
+            )
         },
         colors = TopAppBarDefaults.topAppBarColors(
             containerColor = Color.Black
@@ -110,6 +119,7 @@ fun HomeAppBar(
 
 @Composable
 fun SortAction(
+    currentSortMode: SortMode?,
     onSortClicked: (SortMode) -> Unit
 ) {
     var expanded by remember { mutableStateOf(false) }
@@ -127,6 +137,11 @@ fun SortAction(
             SortMode.entries.toTypedArray()
                 .forEach { sortMode ->
                     DropdownMenuItem(
+                        trailingIcon = {
+                             if (currentSortMode == sortMode) {
+                                 Icon(Icons.Filled.Check, contentDescription = null)
+                             }
+                        },
                         text = { Text(text = sortMode.sortName) },
                         onClick = {
                             expanded = false
@@ -289,6 +304,7 @@ fun HomeListContent(
             is RequestState.Initial -> {
                 // nothing to do for now
             }
+
             is RequestState.Success -> {
                 if (!result.data.isNullOrEmpty()) {
                     MoviesListGrid(

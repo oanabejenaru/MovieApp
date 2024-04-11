@@ -4,8 +4,10 @@ import android.util.Log
 import com.example.movieapp.model.MovieData
 import com.example.movieapp.model.MovieDetailData
 import com.example.movieapp.model.RecommendationType
+import com.example.movieapp.model.SortMode
 import com.example.movieapp.model.api.MoviesApi
 import com.example.movieapp.model.api.RequestState
+import com.example.movieapp.util.Utils
 import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -38,8 +40,16 @@ class MoviesApiRepo(
     private val _movieDetails = MutableStateFlow<RequestState<MovieDetailData>>(RequestState.Initial())
     val movieDetails: StateFlow<RequestState<MovieDetailData>> = _movieDetails
 
-    private val exceptionHandler = CoroutineExceptionHandler { _, throwable ->
-        onError("Exception : ${throwable.localizedMessage}")
+    private val allMoviesExceptionHandler = CoroutineExceptionHandler { _, throwable ->
+        onGetAllMoviesError("Exception : ${throwable.localizedMessage}")
+    }
+
+    private val searchMoviesExceptionHandler = CoroutineExceptionHandler { _, throwable ->
+        onSearchMoviesError("Exception : ${throwable.localizedMessage}")
+    }
+
+    private val getMovieDetailsExceptionHandler = CoroutineExceptionHandler { _, throwable ->
+        onGetMovieDetailsError("Exception : ${throwable.localizedMessage}")
     }
 
     private var job: Job? = null
@@ -56,8 +66,8 @@ class MoviesApiRepo(
         _topRatedMovies.value = RequestState.Loading()
         _upcomingMovies.value = RequestState.Loading()
 
-        job = CoroutineScope(Dispatchers.IO).launch {
-            val nowPlayingDeferred = async(Dispatchers.IO + exceptionHandler) {
+        job = CoroutineScope(Dispatchers.IO + allMoviesExceptionHandler).launch {
+            val nowPlayingDeferred = async(Dispatchers.IO) {
                 val response = api.getMovies(recommendationType = RecommendationType.NOW_PLAYING.type)
                 withContext(Dispatchers.Main) {
                     if (response.isSuccessful) {
@@ -70,7 +80,7 @@ class MoviesApiRepo(
                 }
             }
             nowPlayingDeferred.await()
-            val popularDeferred = async(Dispatchers.IO + exceptionHandler) {
+            val popularDeferred = async(Dispatchers.IO) {
                 val response = api.getMovies(recommendationType = RecommendationType.POPULAR.type)
                 withContext(Dispatchers.Main) {
                     if (response.isSuccessful) {
@@ -83,7 +93,7 @@ class MoviesApiRepo(
                 }
             }
             popularDeferred.await()
-            val topRatedDeferred = async(Dispatchers.IO + exceptionHandler) {
+            val topRatedDeferred = async(Dispatchers.IO) {
                 val response = api.getMovies(recommendationType = RecommendationType.TOP_RATED.type)
                 withContext(Dispatchers.Main) {
                     if (response.isSuccessful) {
@@ -96,7 +106,7 @@ class MoviesApiRepo(
                 }
             }
             topRatedDeferred.await()
-            val upcomingDeferred = async(Dispatchers.IO + exceptionHandler) {
+            val upcomingDeferred = async(Dispatchers.IO) {
                 val response = api.getMovies(recommendationType = RecommendationType.UPCOMING.type)
                 withContext(Dispatchers.Main) {
                     if (response.isSuccessful) {
@@ -114,7 +124,9 @@ class MoviesApiRepo(
 
     fun searchMovies(query : String) {
         _searchedMovies.value = RequestState.Loading()
-        searchMoviesJob = CoroutineScope(Dispatchers.IO + exceptionHandler).launch {
+        searchMoviesJob = CoroutineScope(
+            Dispatchers.IO + searchMoviesExceptionHandler
+        ).launch {
             val response = api.searchMovies(query)
             withContext(Dispatchers.Main) {
                 if (response.isSuccessful) {
@@ -130,7 +142,9 @@ class MoviesApiRepo(
 
     fun getMovieDetails(movieId: Int) {
         _movieDetails.value = RequestState.Loading()
-        getMovieDetailsJob = CoroutineScope(Dispatchers.IO + exceptionHandler).launch {
+        getMovieDetailsJob = CoroutineScope(
+            Dispatchers.IO + getMovieDetailsExceptionHandler
+        ).launch {
             val response = api.getMovieDetails(movieId)
             withContext(Dispatchers.Main) {
                 if (response.isSuccessful) {
@@ -144,8 +158,91 @@ class MoviesApiRepo(
         }
     }
 
-    private fun onError(message: String) {
-        Log.e("MoviesApiRepo", message)
+    fun applySortMode(sortMode: SortMode) {
+        val nowPlayingMovies = _nowPlayingMovies.value.data
+        val popularMovies = _popularMovies.value.data
+        val topRatedMovies = _topRatedMovies.value.data
+        val upcomingMovies = _upcomingMovies.value.data
+        if (nowPlayingMovies != null && popularMovies != null
+            && topRatedMovies != null && upcomingMovies != null) {
+            when (sortMode) {
+                SortMode.RATING_ASCENDING -> {
+                    _nowPlayingMovies.value =
+                        RequestState.Success(nowPlayingMovies.sortedBy { it.averageRating })
+                    _popularMovies.value =
+                        RequestState.Success(popularMovies.sortedBy { it.averageRating })
+                    _topRatedMovies.value =
+                        RequestState.Success(topRatedMovies.sortedBy { it.averageRating })
+                    _upcomingMovies.value =
+                        RequestState.Success(upcomingMovies.sortedBy { it.averageRating })
+                }
+
+                SortMode.RATING_DESCENDING -> {
+                    _nowPlayingMovies.value =
+                        RequestState.Success(nowPlayingMovies.sortedByDescending { it.averageRating })
+                    _popularMovies.value =
+                        RequestState.Success(popularMovies.sortedByDescending { it.averageRating })
+                    _topRatedMovies.value =
+                        RequestState.Success(topRatedMovies.sortedByDescending { it.averageRating })
+                    _upcomingMovies.value =
+                        RequestState.Success(upcomingMovies.sortedByDescending { it.averageRating })
+                }
+                SortMode.RELEASE_ASCENDING -> {
+                    _nowPlayingMovies.value =
+                        RequestState.Success(nowPlayingMovies.sortedBy {
+                            Utils.getYearFromDateString(it.dateOfRelease).toInt() }
+                        )
+                    _popularMovies.value =
+                        RequestState.Success(popularMovies.sortedBy {
+                            Utils.getYearFromDateString(it.dateOfRelease).toInt() }
+                        )
+                    _topRatedMovies.value =
+                        RequestState.Success(topRatedMovies.sortedBy {
+                            Utils.getYearFromDateString(it.dateOfRelease).toInt() }
+                        )
+                    _upcomingMovies.value =
+                        RequestState.Success(upcomingMovies.sortedBy {
+                            Utils.getYearFromDateString(it.dateOfRelease).toInt() }
+                        )
+                }
+                SortMode.RELEASE_DESCENDING -> {
+                    _nowPlayingMovies.value =
+                        RequestState.Success(nowPlayingMovies.sortedByDescending {
+                            Utils.getYearFromDateString(it.dateOfRelease).toInt() }
+                        )
+                    _popularMovies.value =
+                        RequestState.Success(popularMovies.sortedByDescending {
+                            Utils.getYearFromDateString(it.dateOfRelease).toInt() }
+                        )
+                    _topRatedMovies.value =
+                        RequestState.Success(topRatedMovies.sortedByDescending {
+                            Utils.getYearFromDateString(it.dateOfRelease).toInt() }
+                        )
+                    _upcomingMovies.value =
+                        RequestState.Success(upcomingMovies.sortedByDescending {
+                            Utils.getYearFromDateString(it.dateOfRelease).toInt() }
+                        )
+                }
+            }
+        }
+    }
+
+    private fun onGetAllMoviesError(message: String) {
+        Log.e("MoviesApiRepo - onGetAllMoviesError()", message)
+        _nowPlayingMovies.value = RequestState.Error("Something went wrong")
+        _popularMovies.value = RequestState.Error("Something went wrong")
+        _topRatedMovies.value = RequestState.Error("Something went wrong")
+        _upcomingMovies.value = RequestState.Error("Something went wrong")
+    }
+
+    private fun onSearchMoviesError(message: String) {
+        Log.e("MoviesApiRepo - onSearchMoviesError()", message)
+        _searchedMovies.value = RequestState.Error("Something went wrong")
+    }
+
+    private fun onGetMovieDetailsError(message: String) {
+        Log.e("MoviesApiRepo - onGetMovieDetailsError()", message)
+        _movieDetails.value = RequestState.Error("Something went wrong")
     }
 
     fun cancelJobs() {
