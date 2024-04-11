@@ -46,6 +46,6 @@ data class MovieDetailData(
 )
 
 data class Genre(
-    val id: Int?,
-    val name: String?
+    val id: Int,
+    val name: String
 )
