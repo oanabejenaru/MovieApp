@@ -55,7 +55,7 @@ fun MovieDetailsScreen(
     val movieDetailsResult by viewModel.resultMovieDetails.collectAsState()
     val favoriteMoviesIds by viewModel.favoriteMoviesIds.collectAsState()
 
-    LaunchedEffect(key1 = Unit) {
+    LaunchedEffect(key1 = movieId) {
         viewModel.getMovieDetails(movieId = movieId)
     }
 

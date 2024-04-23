@@ -72,7 +72,7 @@ class MoviesApiRepo(
         _topRatedMovies.value = RequestState.Loading()
         _upcomingMovies.value = RequestState.Loading()
 
-        job = CoroutineScope(Dispatchers.IO + allMoviesExceptionHandler).launch {
+        job = CoroutineScope(allMoviesExceptionHandler).launch {
             val nowPlayingDeferred = async(Dispatchers.IO) {
                 val response =
                     api.getMovies(recommendationType = RecommendationType.NOW_PLAYING.type)
